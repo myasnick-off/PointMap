@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">PointMap</string>
+    <string name="location_access_required">Location access required</string>
+    <string name="to_display_your_location_access_is_required">To display your current location, you need permit access to the location of the device!</string>
+    <string name="accept">Accept</string>
+    <string name="deny">Deny</string>
 </resources>

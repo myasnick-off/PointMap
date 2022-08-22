@@ -2,12 +2,16 @@ package com.example.pointmap
 
 import android.Manifest
 import android.app.AlertDialog
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.PointF
 import android.location.Criteria
 import android.location.Location
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,12 +37,19 @@ class MapFragment : Fragment(), UserLocationObjectListener, InputListener {
     private val binding: FragmentMapBinding get() = _binding!!
 
     private var userLocationLayer: UserLocationLayer? = null
+    private var mapObjects: MapObjectCollection? = null
+    private var vibrator: Vibrator? = null
 
     private val launcher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
         if (result) {
             getUserLocation()
         }
         else showRationaleDialog()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        vibrator = context.getSystemService()
     }
 
     override fun onCreateView(
@@ -72,9 +83,17 @@ class MapFragment : Fragment(), UserLocationObjectListener, InputListener {
         _binding = null
     }
 
+    override fun onDetach() {
+        userLocationLayer = null
+        mapObjects = null
+        vibrator = null
+        super.onDetach()
+    }
+
     private fun initMap() {
+        mapObjects = binding.mapview.map.addMapObjectLayer("layer")
+
         binding.mapview.map.apply {
-//            isRotateGesturesEnabled = false
             addTapListener { tapEvent ->
                 val selectionMetadata =
                     tapEvent.geoObject.metadataContainer.getItem(GeoObjectSelectionMetadata::class.java)
@@ -108,8 +127,8 @@ class MapFragment : Fragment(), UserLocationObjectListener, InputListener {
             }
             val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             location?.let { moveToPosition(location) }
-            locationManager.requestLocationUpdates(it, MIN_TIME, MIN_DISTANCE) { location ->
-                moveToPosition(location)
+            locationManager.requestLocationUpdates(it, MIN_TIME, MIN_DISTANCE) { newLocation ->
+                moveToPosition(newLocation)
             }
         }
     }
@@ -145,6 +164,30 @@ class MapFragment : Fragment(), UserLocationObjectListener, InputListener {
         )
     }
 
+    private fun setMark(point: Point) {
+        val mark = mapObjects?.addPlacemark(point)
+        mark?.let {
+            it.opacity = 0.8f
+            it.setIcon(ImageProvider.fromResource(requireContext(), R.drawable.search_result))
+            it.isDraggable = true
+        }
+    }
+
+    private fun vibrate(duration: Long) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator?.vibrate(VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE))
+        }
+    }
+
+    override fun onMapTap(p0: Map, p1: Point) {
+        mapObjects?.clear()
+    }
+
+    override fun onMapLongTap(map: Map, point: Point) {
+        vibrate(duration = VIBRATE_TIME_50)
+        setMark(point = point)
+    }
+
     override fun onObjectAdded(userLocationView: UserLocationView) {
         userLocationLayer?.setAnchor(
             PointF((binding.mapview.width*0.5f), binding.mapview.height*0.5f),
@@ -153,22 +196,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, InputListener {
         userLocationView.arrow.setIcon(
             ImageProvider.fromResource(requireContext(), R.drawable.user_arrow)
         )
-        val pinIcon = userLocationView.pin.useCompositeIcon()
-        pinIcon.setIcon(
-            "icon",
-            ImageProvider.fromResource( requireContext(), R.drawable.search_result),
-            IconStyle().setAnchor(PointF(0f,0f))
-                .setRotationType(RotationType.ROTATE)
-                .setZIndex(1f)
-                .setScale(0.5f)
-        )
     }
-
-    override fun onMapTap(p0: Map, p1: Point) {
-        p0.move(CameraPosition(p1, 14.0f, 0.0f, 0.0f))
-    }
-
-    override fun onMapLongTap(p0: Map, p1: Point) {}
 
     override fun onObjectRemoved(p0: UserLocationView) {}
 
@@ -177,6 +205,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, InputListener {
     companion object {
         private const val MIN_TIME = 100L
         private const val MIN_DISTANCE = 1f
+        private const val VIBRATE_TIME_50 = 50L
 
         fun newInstance() : MapFragment = MapFragment()
     }

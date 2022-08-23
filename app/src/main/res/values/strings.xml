@@ -5,4 +5,9 @@
     <string name="accept">Accept</string>
     <string name="deny">Deny</string>
     <string name="marks_list">Marks list</string>
+    <string name="alpha_05">0.5</string>
+    <string name="mark_name">Name</string>
+    <string name="description">Some Description</string>
+    <string name="latitude">Latitude:</string>
+    <string name="longitude">Longitude:</string>
 </resources>

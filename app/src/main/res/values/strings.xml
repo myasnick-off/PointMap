@@ -10,4 +10,5 @@
     <string name="description">Some Description</string>
     <string name="latitude">Latitude:</string>
     <string name="longitude">Longitude:</string>
+    <string name="list_is_empty">List is Empty</string>
 </resources>

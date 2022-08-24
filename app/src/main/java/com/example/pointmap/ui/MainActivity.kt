@@ -1,9 +1,10 @@
-package com.example.pointmap
+package com.example.pointmap.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import com.example.pointmap.R
 import com.example.pointmap.databinding.ActivityMainBinding
 import com.yandex.mapkit.MapKitFactory
 

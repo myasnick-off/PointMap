@@ -1,4 +1,4 @@
-package com.example.pointmap
+package com.example.pointmap.ui
 
 import android.Manifest
 import android.app.AlertDialog
@@ -22,6 +22,7 @@ import androidx.core.content.getSystemService
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import com.example.pointmap.R
 import com.example.pointmap.databinding.FragmentMapBinding
 import com.example.pointmap.model.AppState
 import com.example.pointmap.model.Mark
@@ -37,7 +38,7 @@ import com.yandex.mapkit.user_location.UserLocationView
 import com.yandex.runtime.image.ImageProvider
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
-class MapFragment : Fragment(), UserLocationObjectListener {
+class MapFragment : Fragment(), UserLocationObjectListener, InputListener {
 
     private var _binding: FragmentMapBinding? = null
     private val binding: FragmentMapBinding get() = _binding!!
@@ -106,14 +107,7 @@ class MapFragment : Fragment(), UserLocationObjectListener {
 
     private fun initMap() = with(binding) {
         mapObjects = mapview.map.addMapObjectLayer(MY_LAYER)
-        mapview.map.addInputListener(object : InputListener {
-            override fun onMapTap(p0: Map, p1: Point) {
-                mapObjects?.clear()
-            }
-            override fun onMapLongTap(map: Map, point: Point) {
-                viewModel.addMark(point = point)
-            }
-        })
+        mapview.map.addInputListener(this@MapFragment)
     }
 
     private fun initViewModel() {
@@ -172,7 +166,6 @@ class MapFragment : Fragment(), UserLocationObjectListener {
 
     private fun showData(data: List<Mark>) {
         binding.loader.isVisible = false
-        vibrate(duration = VIBRATE_TIME_50)
         setMarks(marks = data)
     }
 
@@ -186,7 +179,7 @@ class MapFragment : Fragment(), UserLocationObjectListener {
             .setTitle(R.string.location_access_required)
             .setIcon(R.drawable.ic_warning_24)
             .setMessage(R.string.to_display_your_location_access_is_required)
-            .setPositiveButton(R.string.accept) {_, _ -> checkLocationPermission()}
+            .setPositiveButton(R.string.accept) { _, _ -> checkLocationPermission()}
             .setNegativeButton(R.string.deny) { dialog, _ -> dialog.dismiss() }
             .create()
             .show()
@@ -220,11 +213,17 @@ class MapFragment : Fragment(), UserLocationObjectListener {
     private fun setMarks(marks: List<Mark>) {
         mapObjects?.apply {
             clear()
-            addPlacemarks(
-                marks.map { it.point },
-                ImageProvider.fromResource(requireContext(), R.drawable.search_result),
-                IconStyle(PointF(), RotationType.NO_ROTATION, 0f, true, true, 1f, null)
-            )
+            if (marks.isNotEmpty()) {
+                vibrate(duration = VIBRATE_TIME_50)
+                marks.forEach { mark ->
+                    setMark(mark.point)
+                }
+                /*addPlacemarks(
+                    marks.map { it.point },
+                    ImageProvider.fromResource(requireContext(), R.drawable.search_result),
+                    IconStyle(PointF(0f,0f), RotationType.ROTATE, 1f, false, true, 1f, null)
+                )*/
+            }
         }
     }
 
@@ -242,6 +241,14 @@ class MapFragment : Fragment(), UserLocationObjectListener {
         userLocationView.arrow.setIcon(
             ImageProvider.fromResource(requireContext(), R.drawable.user_arrow)
         )
+    }
+
+    override fun onMapTap(p0: Map, p1: Point) {
+        viewModel.clearAllMarks()
+    }
+
+    override fun onMapLongTap(map: Map, point: Point) {
+        viewModel.addMark(point = point)
     }
 
     override fun onObjectRemoved(p0: UserLocationView) {}

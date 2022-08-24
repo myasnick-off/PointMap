@@ -34,9 +34,9 @@ class MarkListAdapter(private val itemClickListener: ItemClickListener) : Recycl
             markDescription.text = item.description
             markLatVal.text = item.point.latitude.toString()
             markLonVal.text = item.point.longitude.toString()
-            editButton.setOnClickListener { itemClickListener.onEditClick(name = item.name, description = item.description) }
+            editButton.setOnClickListener { itemClickListener.onEditClick(itemId = item.id) }
             removeButton.setOnClickListener { itemClickListener.onRemoveClick(itemId = item.id) }
-            root.setOnClickListener { itemClickListener.onItemClick(item = item) }
+            root.setOnClickListener { itemClickListener.onItemClick(point = item.point) }
         }
     }
 

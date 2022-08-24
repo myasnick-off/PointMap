@@ -11,4 +11,8 @@
     <string name="latitude">Latitude:</string>
     <string name="longitude">Longitude:</string>
     <string name="list_is_empty">List is Empty</string>
+    <string name="cancel">Cancel</string>
+    <string name="apply">Apply</string>
+    <string name="name">Mark Name</string>
+    <string name="mark_description">Mark Description</string>
 </resources>

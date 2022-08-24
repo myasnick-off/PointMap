@@ -22,6 +22,7 @@ import androidx.core.content.getSystemService
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.lifecycleScope
 import com.example.pointmap.R
 import com.example.pointmap.databinding.FragmentMapBinding
 import com.example.pointmap.model.AppState
@@ -36,6 +37,8 @@ import com.yandex.mapkit.user_location.UserLocationLayer
 import com.yandex.mapkit.user_location.UserLocationObjectListener
 import com.yandex.mapkit.user_location.UserLocationView
 import com.yandex.runtime.image.ImageProvider
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class MapFragment : Fragment(), UserLocationObjectListener, InputListener {
@@ -112,6 +115,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, InputListener {
 
     private fun initViewModel() {
         viewModel.liveData.observe(viewLifecycleOwner) { renderState(it) }
+        viewModel.sideEffect.onEach { moveToPosition(point = it) }.launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
     private fun checkLocationPermission() {
@@ -196,7 +200,15 @@ class MapFragment : Fragment(), UserLocationObjectListener, InputListener {
     private fun moveToPosition(location: Location) {
         binding.mapview.map.move(
             CameraPosition(Point(location.latitude, location.longitude), 14.0f, 0.0f, 0.0f),
-            Animation(Animation.Type.SMOOTH, 5f),
+            Animation(Animation.Type.SMOOTH, 3f),
+            null
+        )
+    }
+
+    private fun moveToPosition(point: Point) {
+        binding.mapview.map.move(
+            CameraPosition(point, 14.0f, 0.0f, 0.0f),
+            Animation(Animation.Type.SMOOTH, 1f),
             null
         )
     }

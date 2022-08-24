@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import com.example.pointmap.databinding.FragmentListBinding
 import com.example.pointmap.model.AppState
 import com.example.pointmap.model.Mark
+import com.yandex.mapkit.geometry.Point
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class ListFragment : Fragment(), ItemClickListener {
@@ -67,16 +68,21 @@ class ListFragment : Fragment(), ItemClickListener {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
-    override fun onEditClick(name: String, description: String) {
-        //TODO("Not yet implemented")
+    private fun showSearchDialog(markId: Long) {
+        EditMarkDialogFragment.newInstance(markId = markId).show(parentFragmentManager, "")
+    }
+
+    override fun onEditClick(itemId: Long) {
+        showSearchDialog(markId = itemId)
     }
 
     override fun onRemoveClick(itemId: Long) {
         viewModel.removeMark(id = itemId)
     }
 
-    override fun onItemClick(item: Mark) {
-        //TODO("Not yet implemented")
+    override fun onItemClick(point: Point) {
+        viewModel.moveToSelectedMark(point = point)
+        requireActivity().onBackPressed()
     }
 
     companion object {

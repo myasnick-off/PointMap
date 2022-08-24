@@ -1,9 +1,9 @@
 package com.example.pointmap.ui
 
-import com.example.pointmap.model.Mark
+import com.yandex.mapkit.geometry.Point
 
 interface ItemClickListener {
-    fun onEditClick(name: String, description: String)
+    fun onEditClick(itemId: Long)
     fun onRemoveClick(itemId: Long)
-    fun onItemClick(item: Mark)
+    fun onItemClick(point: Point)
 }

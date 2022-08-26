@@ -15,4 +15,5 @@
     <string name="apply">Apply</string>
     <string name="name">Mark Name</string>
     <string name="mark_description">Mark Description</string>
+    <string name="move_to_position">Move to position</string>
 </resources>

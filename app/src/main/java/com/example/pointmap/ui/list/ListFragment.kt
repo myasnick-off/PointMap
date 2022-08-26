@@ -1,4 +1,4 @@
-package com.example.pointmap.ui
+package com.example.pointmap.ui.list
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import com.example.pointmap.databinding.FragmentListBinding
 import com.example.pointmap.model.AppState
 import com.example.pointmap.model.Mark
+import com.example.pointmap.ui.main.MainViewModel
 import com.yandex.mapkit.geometry.Point
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 

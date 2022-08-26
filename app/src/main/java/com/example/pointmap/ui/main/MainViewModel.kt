@@ -1,4 +1,4 @@
-package com.example.pointmap.ui
+package com.example.pointmap.ui.main
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -56,6 +56,21 @@ class MainViewModel : ViewModel() {
 
     fun moveToSelectedMark(point: Point) {
         viewModelScope.launch { _sideEffect.emit(point) }
+    }
+
+    fun editMark(id: Long, name: String, description: String) {
+        val currentState = liveData.value
+        if (currentState is AppState.Data) {
+            _liveData.value = AppState.Loading
+            val newMarkList = mutableListOf(*(currentState.data).toTypedArray())
+            val markIndex = currentState.data.indexOfFirst { it.id == id }
+            if (markIndex > -1) {
+                newMarkList[markIndex] = newMarkList[markIndex].copy(name = name, description = description)
+                _liveData.value = AppState.Data(data = newMarkList)
+            } else {
+                _liveData.value = AppState.Error(message = DEFAULT_ERROR_MESSAGE)
+            }
+        }
     }
 
     companion object {

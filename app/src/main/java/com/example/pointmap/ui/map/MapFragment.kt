@@ -1,4 +1,4 @@
-package com.example.pointmap.ui
+package com.example.pointmap.ui.map
 
 import android.Manifest
 import android.app.AlertDialog
@@ -27,6 +27,8 @@ import com.example.pointmap.R
 import com.example.pointmap.databinding.FragmentMapBinding
 import com.example.pointmap.model.AppState
 import com.example.pointmap.model.Mark
+import com.example.pointmap.ui.list.ListFragment
+import com.example.pointmap.ui.main.MainViewModel
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
@@ -50,6 +52,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, InputListener {
 
     private var userLocationLayer: UserLocationLayer? = null
     private var mapObjects: MapObjectCollection? = null
+    private var location: Location? = null
     private var vibrator: Vibrator? = null
 
     private val launcher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
@@ -103,6 +106,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, InputListener {
     }
 
     private fun initView() = with(binding) {
+        positionFab.setOnClickListener{ moveToPosition(location)}
         markListFab.setOnClickListener { navigateToFragment(fragment = ListFragment.newInstance()) }
         initMap()
         initUserLocationLayer()
@@ -136,10 +140,11 @@ class MapFragment : Fragment(), UserLocationObjectListener, InputListener {
                 checkLocationPermission()
                 return
             }
-            val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-            location?.let { moveToPosition(location) }
+            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            moveToPosition(location)
             locationManager.requestLocationUpdates(it, MIN_TIME, MIN_DISTANCE) { newLocation ->
-                moveToPosition(newLocation)
+                location = newLocation
+                moveToPosition(location)
             }
         }
     }
@@ -197,12 +202,10 @@ class MapFragment : Fragment(), UserLocationObjectListener, InputListener {
             .commit()
     }
 
-    private fun moveToPosition(location: Location) {
-        binding.mapview.map.move(
-            CameraPosition(Point(location.latitude, location.longitude), 14.0f, 0.0f, 0.0f),
-            Animation(Animation.Type.SMOOTH, 3f),
-            null
-        )
+    private fun moveToPosition(location: Location?) {
+        location?.let {
+            moveToPosition(Point(location.latitude, location.longitude))
+        }
     }
 
     private fun moveToPosition(point: Point) {
@@ -230,11 +233,6 @@ class MapFragment : Fragment(), UserLocationObjectListener, InputListener {
                 marks.forEach { mark ->
                     setMark(mark.point)
                 }
-                /*addPlacemarks(
-                    marks.map { it.point },
-                    ImageProvider.fromResource(requireContext(), R.drawable.search_result),
-                    IconStyle(PointF(0f,0f), RotationType.ROTATE, 1f, false, true, 1f, null)
-                )*/
             }
         }
     }

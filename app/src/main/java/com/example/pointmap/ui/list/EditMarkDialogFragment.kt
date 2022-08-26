@@ -1,4 +1,4 @@
-package com.example.pointmap.ui
+package com.example.pointmap.ui.list
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +9,7 @@ import androidx.fragment.app.DialogFragment
 import com.example.pointmap.databinding.FragmentDialogEditMarkBinding
 import com.example.pointmap.model.AppState
 import com.example.pointmap.model.Mark
+import com.example.pointmap.ui.main.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class EditMarkDialogFragment : DialogFragment() {
@@ -38,12 +39,19 @@ class EditMarkDialogFragment : DialogFragment() {
     }
 
     private fun initView() = with(binding) {
-        btnApply.setOnClickListener {  }
+        btnApply.setOnClickListener { applyChanges() }
         btnCancel.setOnClickListener { dismiss() }
     }
 
     private fun initViewModel() {
         viewModel.liveData.observe(viewLifecycleOwner) { renderState(it) }
+    }
+
+    private fun applyChanges() {
+        val name = binding.nameField.text.let { it.toString() }
+        val description = binding.descriptionField.text.let { it.toString() }
+        viewModel.editMark(id = markId, name = name, description = description)
+        dismiss()
     }
 
     private fun renderState(state: AppState) {

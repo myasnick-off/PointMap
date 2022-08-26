@@ -1,4 +1,4 @@
-package com.example.pointmap.ui
+package com.example.pointmap.ui.main
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.example.pointmap.R
 import com.example.pointmap.databinding.ActivityMainBinding
+import com.example.pointmap.ui.map.MapFragment
 import com.yandex.mapkit.MapKitFactory
 
 class MainActivity : AppCompatActivity() {

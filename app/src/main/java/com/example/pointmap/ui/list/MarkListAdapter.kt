@@ -1,4 +1,4 @@
-package com.example.pointmap.ui
+package com.example.pointmap.ui.list
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

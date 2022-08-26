@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">PointMap</string>
+    <string name="location_access_required">Location access required</string>
+    <string name="to_display_your_location_access_is_required">To display your current location, you need permit access to the location of the device!</string>
+    <string name="accept">Accept</string>
+    <string name="deny">Deny</string>
+    <string name="marks_list">Marks list</string>
+    <string name="alpha_05">0.5</string>
+    <string name="mark_name">Name</string>
+    <string name="description">Some Description</string>
+    <string name="latitude">Latitude:</string>
+    <string name="longitude">Longitude:</string>
+    <string name="list_is_empty">List is Empty</string>
+    <string name="cancel">Cancel</string>
+    <string name="apply">Apply</string>
+    <string name="name">Mark Name</string>
+    <string name="mark_description">Mark Description</string>
+    <string name="move_to_position">Move to position</string>
 </resources>

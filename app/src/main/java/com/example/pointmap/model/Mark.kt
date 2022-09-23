@@ -1,9 +1,10 @@
 package com.example.pointmap.model
 
+import com.yandex.mapkit.geometry.Point
+
 data class Mark(
     val id: Long,
     val name: String,
     val description: String = "",
-    val lat: Double,
-    val lon: Double
+    val point: Point
 )

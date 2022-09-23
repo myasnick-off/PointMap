@@ -15,12 +15,16 @@ import android.os.Vibrator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.getSystemService
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.example.pointmap.databinding.FragmentMapBinding
+import com.example.pointmap.model.AppState
+import com.example.pointmap.model.Mark
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
@@ -31,11 +35,14 @@ import com.yandex.mapkit.user_location.UserLocationLayer
 import com.yandex.mapkit.user_location.UserLocationObjectListener
 import com.yandex.mapkit.user_location.UserLocationView
 import com.yandex.runtime.image.ImageProvider
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class MapFragment : Fragment(), UserLocationObjectListener {
 
     private var _binding: FragmentMapBinding? = null
     private val binding: FragmentMapBinding get() = _binding!!
+
+    private val viewModel: MainViewModel by sharedViewModel()
 
     private var userLocationLayer: UserLocationLayer? = null
     private var mapObjects: MapObjectCollection? = null
@@ -66,6 +73,7 @@ class MapFragment : Fragment(), UserLocationObjectListener {
         super.onViewCreated(view, savedInstanceState)
         initView()
         checkLocationPermission()
+        initViewModel()
     }
 
     override fun onStart() {
@@ -103,10 +111,13 @@ class MapFragment : Fragment(), UserLocationObjectListener {
                 mapObjects?.clear()
             }
             override fun onMapLongTap(map: Map, point: Point) {
-                vibrate(duration = VIBRATE_TIME_50)
-                setMark(point = point)
+                viewModel.addMark(point = point)
             }
         })
+    }
+
+    private fun initViewModel() {
+        viewModel.liveData.observe(viewLifecycleOwner) { renderState(it) }
     }
 
     private fun checkLocationPermission() {
@@ -147,6 +158,29 @@ class MapFragment : Fragment(), UserLocationObjectListener {
         }
     }
 
+    private fun renderState(state: AppState) {
+        when(state) {
+            is AppState.Loading -> showLoading()
+            is AppState.Data -> showData(data = state.data)
+            is AppState.Error -> showError(message = state.message)
+        }
+    }
+
+    private fun showLoading() {
+        binding.loader.isVisible = true
+    }
+
+    private fun showData(data: List<Mark>) {
+        binding.loader.isVisible = false
+        vibrate(duration = VIBRATE_TIME_50)
+        setMarks(marks = data)
+    }
+
+    private fun showError(message: String) {
+        binding.loader.isVisible = false
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
     private fun showRationaleDialog() {
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.location_access_required)
@@ -180,6 +214,17 @@ class MapFragment : Fragment(), UserLocationObjectListener {
             it.opacity = 0.8f
             it.setIcon(ImageProvider.fromResource(requireContext(), R.drawable.search_result))
             it.isDraggable = true
+        }
+    }
+
+    private fun setMarks(marks: List<Mark>) {
+        mapObjects?.apply {
+            clear()
+            addPlacemarks(
+                marks.map { it.point },
+                ImageProvider.fromResource(requireContext(), R.drawable.search_result),
+                IconStyle(PointF(), RotationType.NO_ROTATION, 0f, true, true, 1f, null)
+            )
         }
     }
 

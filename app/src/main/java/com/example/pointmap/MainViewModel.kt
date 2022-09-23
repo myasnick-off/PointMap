@@ -18,8 +18,7 @@ class MainViewModel : ViewModel() {
             val newMark = Mark(
                 id = System.currentTimeMillis(),
                 name = "Mark ${currentState.data.size}",
-                lat = point.latitude,
-                lon = point.latitude
+                point = point
             )
             _liveData.value = AppState.Data(data = currentState.data + newMark)
         }
